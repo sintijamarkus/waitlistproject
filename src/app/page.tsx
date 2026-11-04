@@ -22,17 +22,75 @@ export default async function Home({
   // ---------- Neielogots: landing page ----------
   if (!user) {
     return (
-      <main className="min-h-screen flex flex-col items-center justify-center gap-6 p-8 text-center">
-        <div className="text-6xl">🧦</div>
-        <h1 className="text-5xl font-bold">SockSync</h1>
-        <p className="max-w-md text-lg text-neutral-500">
-          A tiny tag for every sock. Your phone tells you where the missing one is hiding.
-        </p>
-        <LoginButton refCode={ref} />
-        {typeof total === "number" && (
-          <p className="text-sm text-neutral-500">{total} people waiting</p>
-        )}
-        {error && <p className="text-sm text-red-500">Login failed ({error}). Try again.</p>}
+      <main className="min-h-screen bg-black text-white">
+        {/* Hero attēls (16:9). Poga "Join the Waitlist" ir iezīmēta pašā bildē,
+            tāpēc virs tās precīzi uzliekam caurspīdīgu ĪSTO pogu. */}
+        <section className="relative mx-auto w-full max-w-[1600px] aspect-[16/9]">
+          <Image
+            src="/skyhome-hero.webp"
+            alt="SkyHome X — a flying home that can drive, sail and fly. Don't just travel. Take your home with you."
+            fill
+            priority
+            sizes="100vw"
+            className="object-cover"
+          />
+          <LoginButton
+            refCode={ref}
+            className="absolute left-[4%] top-[85.6%] h-[7.6%] w-[20.2%] cursor-pointer rounded-full transition hover:bg-sky-300/15 hover:shadow-[0_0_30px_rgba(125,211,252,0.7)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-300"
+          />
+        </section>
+
+        <section className="mx-auto flex max-w-3xl flex-col items-center gap-6 px-6 py-14 text-center">
+          <h1 className="text-4xl font-bold tracking-[0.3em]">SKYHOME X</h1>
+          <p className="text-lg tracking-widest text-sky-300">
+            Your home. Your world. Your freedom.
+          </p>
+          <p className="text-xl text-neutral-200">A flying mobile home that takes you anywhere.</p>
+
+          <p className="max-w-2xl leading-relaxed text-neutral-400">
+            Imagine waking up in your own comfortable bed, opening the panoramic windows — and the
+            Grand Canyon unfolds beneath you. After breakfast you continue over mountains, oceans and
+            the most beautiful landscapes on Earth. No hotels to find, no suitcases to pack, no
+            changing transport. Your home travels with you.
+          </p>
+
+          <p className="text-2xl font-semibold leading-snug">
+            Don&apos;t just visit the world&apos;s most beautiful places.
+            <br />
+            <span className="text-sky-300">Live above them.</span>
+          </p>
+
+          <ul className="grid w-full gap-3 text-left sm:grid-cols-2">
+            {[
+              ["🏔️", "Fly over the Grand Canyon, the Alps and the Norwegian fjords."],
+              ["🌅", "Wake up every day somewhere extraordinary."],
+              ["🛋️", "Enjoy a fully equipped home wherever you go."],
+              ["🔄", "Switch between flying, driving and sailing modes."],
+            ].map(([icon, text]) => (
+              <li
+                key={text}
+                className="flex gap-3 rounded-xl border border-sky-300/20 bg-white/5 p-4 text-neutral-200"
+              >
+                <span className="text-xl">{icon}</span>
+                <span>{text}</span>
+              </li>
+            ))}
+          </ul>
+
+          <LoginButton
+            refCode={ref}
+            className="mt-2 rounded-full border-2 border-sky-300 px-8 py-3 font-semibold shadow-[0_0_20px_rgba(125,211,252,0.5)] transition hover:bg-sky-300/10"
+          >
+            Join the Waitlist with Google →
+          </LoginButton>
+          {typeof total === "number" && (
+            <p className="text-sm text-neutral-400">{total} people waiting for take-off</p>
+          )}
+          {error && <p className="text-sm text-red-400">Login failed ({error}). Try again.</p>}
+          <p className="text-xs uppercase tracking-[0.3em] text-neutral-500">
+            SKYHOME X — The ultimate travel experience
+          </p>
+        </section>
       </main>
     );
   }
@@ -56,8 +114,8 @@ export default async function Home({
   const shareUrl = row ? `${proto}://${host}/?ref=${row.id}` : null;
 
   return (
-    <main className="min-h-screen flex flex-col items-center gap-6 p-8">
-      <div className="mt-10 w-full max-w-md rounded-2xl border border-neutral-700 p-6 text-center">
+    <main className="min-h-screen flex flex-col items-center gap-6 bg-black bg-[url(/skyhome-hero.webp)] bg-cover bg-center bg-fixed p-8 text-white">
+      <div className="mt-10 w-full max-w-md rounded-2xl border border-sky-300/40 bg-black/70 p-6 text-center backdrop-blur">
         {avatar && (
           <Image
             src={avatar}
@@ -67,7 +125,7 @@ export default async function Home({
             className="mx-auto rounded-full"
           />
         )}
-        <h1 className="mt-4 text-3xl font-bold">You&apos;re on the list, {firstName}!</h1>
+        <h1 className="mt-4 text-3xl font-bold">You&apos;re on the list, {firstName}! ✈️</h1>
         <p className="text-neutral-500">{user.email}</p>
         {typeof position === "number" && position > 0 && (
           <p className="mt-2 text-xl">You&apos;re #{position} on the list</p>
@@ -98,7 +156,7 @@ export default async function Home({
         </Link>
       </div>
 
-      <section className="w-full max-w-2xl">
+      <section className="w-full max-w-2xl rounded-2xl bg-black/80 p-4 backdrop-blur">
         <h2 className="mb-2 font-semibold">Everything Google told us (user_metadata):</h2>
         <pre className="overflow-x-auto rounded-lg bg-neutral-900 p-4 text-xs text-green-300">
           {JSON.stringify(meta, null, 2)}

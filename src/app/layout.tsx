@@ -6,8 +6,8 @@ const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "SockSync — never lose a sock again",
-  description: "Join the SockSync waitlist",
+  title: "SkyHome X — One home. Three worlds.",
+  description: "A flying mobile home that takes you anywhere. Join the waitlist.",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {

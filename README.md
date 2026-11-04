@@ -1,6 +1,7 @@
-# 🧦 SockSync — Waitlist
+# ✈️ SKYHOME X — Waitlist
 
-Izdomāts produkts: mazs tags katrai zeķei, telefons pasaka, kur paslēpusies pazudusī.
+Izdomāts produkts: **lidojoša luksusa māja ceļošanai** — brauc, peld un lido.
+*Your home. Your world. Your freedom.* — "Don't just visit the world's most beautiful places. Live above them."
 Šodien — tā waitlist lapa: **Join with Google → Supabase datubāze → "You're on the list!"**
 
 Tech: Next.js 15 (App Router) · Supabase Auth + Postgres · `@supabase/ssr` · Tailwind
