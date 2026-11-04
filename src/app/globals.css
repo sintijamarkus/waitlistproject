@@ -22,6 +22,18 @@ html {
   scroll-padding-top: 80px;
 }
 
+/* ---------- Pilnekrāna sadaļas ar "pieķeršanos" ---------- */
+/* Ritinot lapa pati aizbrauc līdz nākamās sadaļas sākumam, lai tā redzama pilnībā.
+   Sadaļas, kas garākas par ekrānu, var brīvi ritināt iekšā. */
+html:has(.snap-page) {
+  scroll-snap-type: y mandatory;
+  scroll-padding-top: 0;
+}
+
+.snap-screen {
+  scroll-snap-align: start;
+}
+
 /* ---------- Animētā "Join the Waitlist" poga ---------- */
 @property --beam-angle {
   syntax: "<angle>";
@@ -30,18 +42,22 @@ html {
 }
 
 /* Gaismas stars, kas skrien pa pogas perimetru */
+/* Divas gaismas "komētas" skrien pa kontūru pretējās pusēs */
 .join-beam {
   background: conic-gradient(
     from var(--beam-angle),
-    rgba(125, 211, 252, 0.35) 0deg,
-    rgba(125, 211, 252, 0.35) 200deg,
-    #0ea5e9 260deg,
-    #67e8f9 300deg,
-    #ffffff 330deg,
+    rgba(125, 211, 252, 0.18) 0deg,
+    rgba(125, 211, 252, 0.18) 100deg,
+    #0ea5e9 140deg,
+    #67e8f9 165deg,
+    #ffffff 180deg,
+    rgba(125, 211, 252, 0.18) 182deg,
+    rgba(125, 211, 252, 0.18) 280deg,
+    #0ea5e9 320deg,
     #67e8f9 345deg,
-    rgba(125, 211, 252, 0.35) 360deg
+    #ffffff 360deg
   );
-  animation: beam-spin 3s linear infinite;
+  animation: beam-spin 2.6s linear infinite;
 }
 
 /* Mīksts mirdzums, kas seko staram un pulsē */
@@ -49,14 +65,16 @@ html {
   background: conic-gradient(
     from var(--beam-angle),
     transparent 0deg,
-    transparent 200deg,
-    #0ea5e9 270deg,
-    #67e8f9 310deg,
-    #ffffff 330deg,
-    transparent 360deg
+    transparent 120deg,
+    #0ea5e9 160deg,
+    #67e8f9 180deg,
+    transparent 185deg,
+    transparent 300deg,
+    #0ea5e9 340deg,
+    #67e8f9 360deg
   );
   animation:
-    beam-spin 3s linear infinite,
+    beam-spin 2.6s linear infinite,
     glow-pulse 2.4s ease-in-out infinite;
 }
 
@@ -137,6 +155,25 @@ html {
   transform: none;
 }
 
+/* Mirgojošs kursors rakstāmmašīnas virsrakstam */
+.type-caret {
+  display: inline-block;
+  width: 0.08em;
+  height: 0.9em;
+  margin-left: 0.06em;
+  vertical-align: -0.08em;
+  border-radius: 2px;
+  background: #7dd3fc;
+  box-shadow: 0 0 12px rgba(125, 211, 252, 0.8);
+  animation: caret-blink 1s steps(1) infinite;
+}
+
+@keyframes caret-blink {
+  50% {
+    opacity: 0;
+  }
+}
+
 /* Pulsējošs punkts "live" skaitītājam */
 .live-dot {
   animation: live-dot 1.6s ease-in-out infinite;
@@ -153,8 +190,14 @@ html {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .join-beam,
-  .join-glow,
+  /* Kontūras stars paliek (maza, lēna kustība), pārējais apstājas */
+  .join-beam {
+    animation-duration: 5s;
+  }
+  .join-glow {
+    animation: beam-spin 5s linear infinite;
+    opacity: 0.8;
+  }
   .join-arrow,
   .hero-drift,
   .scroll-cue,
