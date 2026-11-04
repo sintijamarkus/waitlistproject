@@ -24,3 +24,97 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* ---------- SKYHOME X: animētā "Join the Waitlist" poga ---------- */
+@property --beam-angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+
+/* Gaismas stars, kas skrien pa pogas perimetru */
+.join-beam {
+  background: conic-gradient(
+    from var(--beam-angle),
+    rgba(125, 211, 252, 0.35) 0deg,
+    rgba(125, 211, 252, 0.35) 200deg,
+    #0ea5e9 260deg,
+    #67e8f9 300deg,
+    #ffffff 330deg,
+    #67e8f9 345deg,
+    rgba(125, 211, 252, 0.35) 360deg
+  );
+  animation: beam-spin 3s linear infinite;
+}
+
+/* Mīksts mirdzums, kas seko staram un pulsē */
+.join-glow {
+  background: conic-gradient(
+    from var(--beam-angle),
+    transparent 0deg,
+    transparent 200deg,
+    #0ea5e9 270deg,
+    #67e8f9 310deg,
+    #ffffff 330deg,
+    transparent 360deg
+  );
+  animation:
+    beam-spin 3s linear infinite,
+    glow-pulse 2.4s ease-in-out infinite;
+}
+
+@keyframes beam-spin {
+  to {
+    --beam-angle: 360deg;
+  }
+}
+
+@keyframes glow-pulse {
+  0%,
+  100% {
+    opacity: 0.7;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* Bultiņa "→" viegli pakustas uz priekšu */
+.join-arrow {
+  display: inline-block;
+  animation: arrow-nudge 1.6s ease-in-out infinite;
+}
+
+@keyframes arrow-nudge {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(6px);
+  }
+}
+
+/* Hero attēls lēnām "peld" (Ken Burns efekts) */
+.hero-drift {
+  animation: hero-drift 22s ease-in-out infinite alternate;
+  transform-origin: 60% 45%;
+}
+
+@keyframes hero-drift {
+  from {
+    transform: scale(1) translate(0, 0);
+  }
+  to {
+    transform: scale(1.08) translate(-1.5%, -1%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .join-beam,
+  .join-glow,
+  .join-arrow,
+  .hero-drift {
+    animation: none;
+  }
+}

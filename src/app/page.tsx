@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { headers } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
-import LoginButton from "@/components/LoginButton";
+import JoinButton from "@/components/JoinButton";
 import CopyLink from "@/components/CopyLink";
 
 export default async function Home({
@@ -23,22 +23,22 @@ export default async function Home({
   if (!user) {
     return (
       <main className="min-h-screen bg-black text-white">
-        {/* Hero attēls (16:9). Poga "Join the Waitlist" ir iezīmēta pašā bildē,
-            tāpēc virs tās precīzi uzliekam caurspīdīgu ĪSTO pogu. */}
-        <section className="relative mx-auto w-full max-w-[1600px] aspect-[16/9]">
+        {/* Hero attēls (lēnām "peld") + centrēta animētā poga */}
+        <section className="relative mx-auto w-full max-w-[1600px] overflow-hidden aspect-[1600/752]">
           <Image
-            src="/skyhome-hero.webp"
+            src="/skyhome-x-hero.webp"
             alt="SkyHome X — a flying home that can drive, sail and fly. Don't just travel. Take your home with you."
             fill
             priority
             sizes="100vw"
-            className="object-cover"
+            className="hero-drift object-cover"
           />
-          <LoginButton
-            refCode={ref}
-            className="absolute left-[4%] top-[85.6%] h-[7.6%] w-[20.2%] cursor-pointer rounded-full transition hover:bg-sky-300/15 hover:shadow-[0_0_30px_rgba(125,211,252,0.7)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-300"
-          />
+          <div className="absolute inset-x-0 bottom-0 h-[8%] bg-gradient-to-b from-transparent to-black" />
         </section>
+
+        <div className="relative z-10 flex justify-center px-4 pt-8 sm:pt-10">
+          <JoinButton refCode={ref} />
+        </div>
 
         <section className="mx-auto flex max-w-3xl flex-col items-center gap-6 px-6 py-14 text-center">
           <h1 className="text-4xl font-bold tracking-[0.3em]">SKYHOME X</h1>
@@ -77,12 +77,9 @@ export default async function Home({
             ))}
           </ul>
 
-          <LoginButton
-            refCode={ref}
-            className="mt-2 rounded-full border-2 border-sky-300 px-8 py-3 font-semibold shadow-[0_0_20px_rgba(125,211,252,0.5)] transition hover:bg-sky-300/10"
-          >
-            Join the Waitlist with Google →
-          </LoginButton>
+          <div className="mt-4">
+            <JoinButton refCode={ref} size="md" />
+          </div>
           {typeof total === "number" && (
             <p className="text-sm text-neutral-400">{total} people waiting for take-off</p>
           )}
@@ -114,7 +111,7 @@ export default async function Home({
   const shareUrl = row ? `${proto}://${host}/?ref=${row.id}` : null;
 
   return (
-    <main className="min-h-screen flex flex-col items-center gap-6 bg-black bg-[url(/skyhome-hero.webp)] bg-cover bg-center bg-fixed p-8 text-white">
+    <main className="min-h-screen flex flex-col items-center gap-6 bg-black bg-[url(/skyhome-x-hero.webp)] bg-cover bg-center bg-fixed p-8 text-white">
       <div className="mt-10 w-full max-w-md rounded-2xl border border-sky-300/40 bg-black/70 p-6 text-center backdrop-blur">
         {avatar && (
           <Image
