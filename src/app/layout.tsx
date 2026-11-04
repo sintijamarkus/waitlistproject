@@ -14,7 +14,12 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" className="scroll-smooth">
-      <body className={`${geistSans.variable} ${display.variable} bg-black text-white antialiased`}>
+      {/* suppressHydrationWarning: pārlūka paplašinājumi (piem. Grammarly) pieliek <body> savus
+          atribūtus pirms React ielādējas. Ignorē tikai body atribūtus, ne bērnu elementus. */}
+      <body
+        suppressHydrationWarning
+        className={`${geistSans.variable} ${display.variable} bg-black text-white antialiased`}
+      >
         {children}
       </body>
     </html>

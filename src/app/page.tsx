@@ -8,15 +8,37 @@ import CopyLink from "@/components/CopyLink";
 import Nav from "@/components/Nav";
 import Reveal from "@/components/Reveal";
 import Modes from "@/components/Modes";
+import StickyJoin from "@/components/StickyJoin";
+import Hero from "@/components/Hero";
+import LiveCount from "@/components/LiveCount";
+import Icon, { type IconName } from "@/components/Icon";
 
-const HERO = "/skyhome-x-hero-16x9.webp";
+import { pickHero } from "@/lib/heroes";
 const display = "font-[family-name:var(--font-display)]";
+// Katra sadaļa = viens pilns ekrāns; ritinot tā "pieķeras" (scroll-snap globals.css).
+const screen = "snap-screen relative flex min-h-svh flex-col justify-center pt-16";
+
+const FEATURES: [IconName, string, string][] = [
+  ["mountain", "Fly over iconic places", "The Grand Canyon, the Alps and the Norwegian fjords — seen from your own living room."],
+  ["sunrise", "Wake up somewhere new", "Open the panoramic windows to a different view every morning."],
+  ["home", "Your home, everywhere", "A fully equipped home. No hotels, no suitcases, no check-in desks."],
+  ["modes", "One vehicle, three worlds", "Switch between flying, driving and sailing in under 90 seconds."],
+];
+
+const TECH: [IconName, string, string][] = [
+  ["rotor", "Electric VTOL flight", "6 ducted electric rotors and a hybrid range extender. Lifts off vertically — no runway."],
+  ["autopilot", "Full autopilot", "Flies, drives and sails autonomously. No pilot licence required."],
+  ["glass", "270° smart glass", "Panoramic windows that dim on demand for privacy or sleep."],
+  ["solar", "Self-powered home", "12 kW solar roof and a 400 kWh battery keep the lights on off-grid."],
+  ["hull", "Amphibious hull", "A sealed hull turns your home into a yacht at 25 knots."],
+  ["shield", "Safety first", "Triple-redundant systems, 360° radar & lidar, whole-vehicle parachute."],
+];
 
 const STATS = [
   ["1,200", "km", "flight range"],
   ["320", "km/h", "air cruise speed"],
   ["46", "m²", "living space"],
-  ["3", "modes", "fly · drive · sail"],
+  ["90", "sec", "mode switch"],
 ];
 
 const SPECS: [string, [string, string][]][] = [
@@ -25,8 +47,7 @@ const SPECS: [string, [string, string][]][] = [
     [
       ["Propulsion", "6 electric ducted rotors + hybrid range extender"],
       ["Take-off", "Vertical (VTOL) — no runway needed"],
-      ["Range / Cruise", "1,200 km · 320 km/h"],
-      ["Autopilot", "Fully autonomous, no pilot licence required"],
+      ["Range / Cruise", "1,200 km · 320 km/h · max 3,000 m"],
     ],
   ],
   [
@@ -34,7 +55,6 @@ const SPECS: [string, [string, string][]][] = [
     [
       ["Layout", "2 bedrooms · lounge · kitchen · rain-shower bath"],
       ["Guests", "Sleeps 4 in comfort"],
-      ["Windows", "270° panoramic smart glass, dims on demand"],
       ["Energy", "12 kW solar roof · 400 kWh battery"],
     ],
   ],
@@ -42,27 +62,18 @@ const SPECS: [string, [string, string][]][] = [
     "Road & Water",
     [
       ["Road", "140 km/h · Level 4 autonomous · 4×4"],
-      ["Water", "Amphibious hull · 25 knots"],
+      ["Water", "Amphibious hull · 25 knots · sea state 4"],
       ["Dimensions", "14.8 m × 3.2 m (rotors folded)"],
-      ["Switching", "Change mode in under 90 seconds"],
     ],
   ],
   [
     "Safety",
     [
       ["Redundancy", "Triple-redundant batteries & flight computers"],
-      ["Emergency", "Whole-vehicle ballistic parachute"],
       ["Sensors", "360° radar, lidar and thermal vision"],
       ["Certification", "Designed to EASA & FAA standards"],
     ],
   ],
-];
-
-const BENEFITS = [
-  ["🏔️", "Fly over iconic places", "The Grand Canyon, the Alps and the Norwegian fjords — from your living room."],
-  ["🌅", "Wake up somewhere new", "Every morning, a different view through the panoramic windows."],
-  ["🛋️", "Your home, everywhere", "A fully equipped home. No hotels, no suitcases, no check-in."],
-  ["🔄", "One vehicle, three worlds", "Switch between flying, driving and sailing in seconds."],
 ];
 
 const FAQ = [
@@ -89,145 +100,120 @@ export default async function Home({
 
   if (user) return <OnTheList user={user} total={waiting} />;
 
+  // Katrā refresh cita fona bilde (izvēlas serveris, tāpēc nav hydration kļūdu).
+  const hero = pickHero();
+
   // ===================== Neielogots: landing page =====================
   return (
-    <main id="top" className="bg-black">
+    <main className="snap-page bg-black">
       <Nav cta={<JoinButton refCode={ref} size="sm" />} />
+      <StickyJoin count={waiting}>
+        <JoinButton refCode={ref} size="sm" />
+      </StickyJoin>
 
-      {/* ---------- HERO: 16:9 attēls, CTA redzams uzreiz ---------- */}
-      <section className="relative bg-black pt-16">
-        <div className="relative mx-auto aspect-[16/9] w-full max-w-[calc((100svh-4rem)*16/9)] overflow-hidden lg:rounded-b-3xl">
-          <Image
-            src={HERO}
-            alt="SKYHOME X flying over the Grand Canyon. One home. Three worlds. Don't just travel. Take your home with you."
-            fill
-            priority
-            sizes="100vw"
-            className="hero-drift object-cover"
-          />
-          {/* Tumšāka apakša, lai poga labi izceļas */}
-          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1/4 bg-gradient-to-t from-black/70 to-transparent" />
+      <Hero hero={hero} refCode={ref} waiting={waiting} error={error} />
 
-          {/* DRIVE / SAIL / FLY ikonas attēlā = klikšķināmas pogas */}
-          {[
-            ["drive", "39%"],
-            ["sail", "47.6%"],
-            ["fly", "55.8%"],
-          ].map(([id, left]) => (
-            <a
-              key={id}
-              href={`#${id}`}
-              aria-label={`Explore ${id} mode`}
-              style={{ left }}
-              className="absolute top-[16.5%] hidden h-[9.5%] w-[5.6%] rounded-xl transition hover:bg-white/10 hover:shadow-[0_0_24px_rgba(125,211,252,0.6)] lg:block"
-            />
-          ))}
-
-          {/* CTA virs attēla (lielos ekrānos) */}
-          <div className="absolute bottom-[5%] left-[3.6%] hidden items-center gap-4 lg:flex">
-            <JoinButton refCode={ref} size="lg" />
-            <a
-              href="#specs"
-              className="rounded-full border border-white/30 bg-white/10 px-6 py-3.5 text-base font-semibold backdrop-blur-md transition hover:bg-white/20"
-            >
-              Explore specs
-            </a>
-            {waiting !== null && <LiveCount n={waiting} />}
+      {/* ---------- 2. FEATURES ---------- */}
+      <section id="features" className={`${screen} bg-gradient-to-b from-black to-[#06101f]`}>
+        <div className="mx-auto w-full max-w-6xl px-4 py-16 sm:px-6">
+          <SectionHead eyebrow="Features" title="A home that travels with you.">
+            No hotels to find, no suitcases to pack. Wake up in your own bed — somewhere extraordinary.
+          </SectionHead>
+          <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {FEATURES.map(([icon, title, text], i) => (
+              <Reveal key={title} delay={i * 100}>
+                <div className="group h-full rounded-3xl border border-white/10 bg-white/[0.04] p-6 transition hover:-translate-y-1 hover:border-sky-300/40 hover:bg-white/[0.07]">
+                  <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-sky-300/10 text-sky-300 ring-1 ring-sky-300/20 transition group-hover:bg-sky-300/20">
+                    <Icon name={icon} />
+                  </span>
+                  <h3 className="mt-5 text-lg font-semibold">{title}</h3>
+                  <p className="mt-2 text-sm leading-relaxed text-white/60">{text}</p>
+                </div>
+              </Reveal>
+            ))}
           </div>
-
-          {/* Scroll indikators */}
-          <a
-            href="#specs"
-            aria-label="Scroll to specs"
-            className="scroll-cue absolute bottom-[4%] right-[3%] hidden flex-col items-center gap-1 rounded-full bg-black/40 px-4 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-white backdrop-blur-md transition hover:bg-black/60 lg:flex"
-          >
-            Specs
-            <span className="text-xl">⌄</span>
-          </a>
         </div>
-
-        {/* CTA zem attēla (telefonā / planšetē) */}
-        <div className="flex flex-col items-center gap-4 px-4 py-8 lg:hidden">
-          <JoinButton refCode={ref} size="md" />
-          <a href="#specs" className="rounded-full border border-white/25 bg-white/5 px-6 py-3 text-sm font-semibold">
-            Explore specs ↓
-          </a>
-          {waiting !== null && <LiveCount n={waiting} />}
-        </div>
-
-        {error && (
-          <p className="pb-6 text-center text-sm text-red-400">Login failed ({error}). Please try again.</p>
-        )}
       </section>
 
-      {/* ---------- SPECS ---------- */}
-      <section id="specs" className="relative border-t border-white/10 bg-gradient-to-b from-[#06101f] to-black py-24">
-        <div className="mx-auto max-w-6xl px-4 sm:px-6">
-          <Reveal className="text-center">
-            <p className="text-sm font-semibold uppercase tracking-[0.3em] text-sky-300">Specifications</p>
-            <h2 className={`${display} mt-3 text-4xl font-bold sm:text-5xl`}>Engineered for freedom.</h2>
-            <p className="mx-auto mt-4 max-w-2xl text-lg text-white/60">
-              A flying mobile home that takes you anywhere — by air, by road and by water.
-            </p>
+      {/* ---------- 3. MODES ---------- */}
+      <section id="modes" className={`${screen} bg-[#06101f]`}>
+        {/* Neredzami enkuri #drive / #sail / #fly saitēm no attēla */}
+        <span id="drive" className="absolute top-0" />
+        <span id="sail" className="absolute top-0" />
+        <span id="fly" className="absolute top-0" />
+        <div className="mx-auto w-full max-w-6xl px-4 py-16 sm:px-6">
+          <SectionHead eyebrow="One home. Three worlds." title="Fly. Drive. Sail." />
+          <Reveal className="mt-12">
+            <Modes />
           </Reveal>
+        </div>
+      </section>
 
-          <div className="mt-14 grid grid-cols-2 gap-4 lg:grid-cols-4">
+      {/* ---------- 4. TECH FEATURES ---------- */}
+      <section id="tech" className={`${screen} bg-gradient-to-b from-[#06101f] to-black`}>
+        <div className="mx-auto w-full max-w-6xl px-4 py-16 sm:px-6">
+          <SectionHead eyebrow="Tech features" title="Engineered for freedom." />
+
+          <div className="mt-10 grid grid-cols-2 gap-3 lg:grid-cols-4">
             {STATS.map(([value, unit, label], i) => (
-              <Reveal key={label} delay={i * 100}>
-                <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-6 text-center transition hover:border-sky-300/40 hover:bg-white/[0.07]">
-                  <div className={`${display} text-4xl font-bold sm:text-5xl`}>
+              <Reveal key={label} delay={i * 80}>
+                <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-5 text-center">
+                  <div className={`${display} text-3xl font-bold sm:text-4xl`}>
                     {value}
-                    <span className="ml-1 text-lg text-sky-300 sm:text-xl">{unit}</span>
+                    <span className="ml-1 text-base text-sky-300 sm:text-lg">{unit}</span>
                   </div>
-                  <div className="mt-2 text-sm uppercase tracking-wider text-white/50">{label}</div>
+                  <div className="mt-1 text-xs uppercase tracking-wider text-white/50">{label}</div>
                 </div>
               </Reveal>
             ))}
           </div>
 
-          <div className="mt-6 grid gap-4 md:grid-cols-2">
-            {SPECS.map(([group, rows], i) => (
-              <Reveal key={group} delay={i * 80}>
-                <div className="h-full rounded-3xl border border-white/10 bg-white/[0.03] p-6 sm:p-8">
-                  <h3 className={`${display} mb-4 text-xl font-bold text-sky-300`}>{group}</h3>
+          <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {TECH.map(([icon, title, text], i) => (
+              <Reveal key={title} delay={i * 60}>
+                <div className="flex h-full gap-4 rounded-2xl border border-white/10 bg-white/[0.03] p-5 transition hover:border-sky-300/40">
+                  <span className="mt-0.5 text-sky-300">
+                    <Icon name={icon} className="h-7 w-7" />
+                  </span>
+                  <div>
+                    <h3 className="font-semibold">{title}</h3>
+                    <p className="mt-1 text-sm leading-relaxed text-white/60">{text}</p>
+                  </div>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+
+          <details className="group mt-4 rounded-2xl border border-white/10 bg-white/[0.03] open:border-sky-300/30">
+            <summary className="flex cursor-pointer list-none items-center justify-between gap-4 p-5 font-semibold hover:text-sky-200">
+              Full specifications
+              <span className="text-xl text-sky-300 transition group-open:rotate-45">+</span>
+            </summary>
+            <div className="grid gap-x-10 px-5 pb-5 md:grid-cols-2">
+              {SPECS.map(([group, rows]) => (
+                <div key={group} className="pt-3">
+                  <h4 className="mb-1 text-sm font-semibold uppercase tracking-wider text-sky-300">{group}</h4>
                   <dl className="divide-y divide-white/10">
                     {rows.map(([k, v]) => (
-                      <div key={k} className="grid grid-cols-[8rem_1fr] gap-4 py-3 text-sm sm:text-base">
+                      <div key={k} className="grid grid-cols-[7.5rem_1fr] gap-4 py-2.5 text-sm">
                         <dt className="text-white/50">{k}</dt>
                         <dd className="text-white/90">{v}</dd>
                       </div>
                     ))}
                   </dl>
                 </div>
-              </Reveal>
-            ))}
-          </div>
-          <p className="mt-6 text-center text-xs text-white/40">Concept specifications. Subject to change.</p>
+              ))}
+            </div>
+            <p className="px-5 pb-5 text-xs text-white/40">Concept specifications. Subject to change.</p>
+          </details>
         </div>
       </section>
 
-      {/* ---------- MODES ---------- */}
-      <section id="modes" className="relative py-24">
-        {/* Neredzami enkuri #drive / #sail / #fly saitēm no attēla */}
-        <span id="drive" className="absolute top-0" />
-        <span id="sail" className="absolute top-0" />
-        <span id="fly" className="absolute top-0" />
-        <div className="mx-auto max-w-6xl px-4 sm:px-6">
-          <Reveal className="mb-12 text-center">
-            <p className="text-sm font-semibold uppercase tracking-[0.3em] text-sky-300">One home. Three worlds.</p>
-            <h2 className={`${display} mt-3 text-4xl font-bold sm:text-5xl`}>Fly. Drive. Sail.</h2>
-          </Reveal>
-          <Reveal>
-            <Modes />
-          </Reveal>
-        </div>
-      </section>
-
-      {/* ---------- EXPERIENCE ---------- */}
-      <section id="experience" className="relative overflow-hidden py-28">
-        <Image src={HERO} alt="" fill sizes="100vw" className="object-cover opacity-25 blur-sm" />
-        <div className="absolute inset-0 bg-gradient-to-b from-black via-black/60 to-black" />
-        <div className="relative mx-auto max-w-4xl px-4 text-center sm:px-6">
+      {/* ---------- 5. EXPERIENCE ---------- */}
+      <section id="experience" className={`${screen} overflow-hidden`}>
+        <Image src={hero.src} alt="" fill sizes="100vw" className="object-cover opacity-30 blur-sm" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black via-black/50 to-black" />
+        <div className="relative mx-auto max-w-4xl px-4 py-16 text-center sm:px-6">
           <Reveal>
             <p className="text-sm font-semibold uppercase tracking-[0.3em] text-sky-300">
               Your home. Your world. Your freedom.
@@ -238,75 +224,77 @@ export default async function Home({
                 Live above them.
               </span>
             </h2>
-            <p className="mx-auto mt-8 max-w-2xl text-lg leading-relaxed text-white/70">
+            <p className="mx-auto mt-8 max-w-2xl text-lg leading-relaxed text-white/75">
               Imagine waking up in your own comfortable bed, opening the panoramic windows — and the
               Grand Canyon unfolds beneath you. After breakfast you continue over mountains, oceans and
-              the most beautiful landscapes on Earth. No hotels to find, no suitcases to pack. Your home
-              travels with you.
+              the most beautiful landscapes on Earth. Your home travels with you.
             </p>
           </Reveal>
-
-          <div className="mt-14 grid gap-4 text-left sm:grid-cols-2">
-            {BENEFITS.map(([icon, title, text], i) => (
-              <Reveal key={title} delay={i * 100}>
-                <div className="flex h-full gap-4 rounded-3xl border border-white/10 bg-black/40 p-6 backdrop-blur transition hover:-translate-y-1 hover:border-sky-300/40">
-                  <span className="text-3xl">{icon}</span>
-                  <div>
-                    <h3 className="font-semibold">{title}</h3>
-                    <p className="mt-1 text-sm text-white/60">{text}</p>
-                  </div>
-                </div>
-              </Reveal>
-            ))}
-          </div>
         </div>
       </section>
 
-      {/* ---------- FAQ ---------- */}
-      <section id="faq" className="border-t border-white/10 py-24">
-        <div className="mx-auto max-w-3xl px-4 sm:px-6">
-          <Reveal className="mb-10 text-center">
-            <h2 className={`${display} text-4xl font-bold`}>Questions</h2>
-          </Reveal>
-          <div className="space-y-3">
-            {FAQ.map(([q, a]) => (
-              <Reveal key={q}>
-                <details className="group rounded-2xl border border-white/10 bg-white/[0.03] transition open:border-sky-300/30">
-                  <summary className="flex cursor-pointer list-none items-center justify-between gap-4 p-5 font-semibold hover:text-sky-200">
-                    {q}
-                    <span className="text-xl text-sky-300 transition group-open:rotate-45">+</span>
-                  </summary>
-                  <p className="px-5 pb-5 text-white/60">{a}</p>
-                </details>
-              </Reveal>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ---------- FINAL CTA ---------- */}
-      <section className="px-4 pb-24 sm:px-6">
-        <Reveal>
-          <div className="relative mx-auto max-w-5xl overflow-hidden rounded-[2rem] border border-sky-300/20 bg-gradient-to-br from-[#0b2140] via-[#06101f] to-black px-6 py-16 text-center">
-            <div className="pointer-events-none absolute -top-24 left-1/2 h-64 w-64 -translate-x-1/2 rounded-full bg-sky-400/30 blur-3xl" />
-            <h2 className={`${display} relative text-3xl font-bold sm:text-5xl`}>Be first on board.</h2>
-            <p className="relative mx-auto mt-4 max-w-xl text-white/70">
-              Join the waitlist with your Google account in one click. Free, no commitment.
-            </p>
-            <div className="relative mt-8 flex flex-col items-center gap-4">
-              <JoinButton refCode={ref} size="lg" />
-              {waiting !== null && <LiveCount n={waiting} />}
+      {/* ---------- 6. FAQ + FINAL CTA ---------- */}
+      <section id="faq" className={`${screen} border-t border-white/10`}>
+        <div className="mx-auto grid w-full max-w-6xl gap-10 px-4 py-16 sm:px-6 lg:grid-cols-2 lg:items-center">
+          <div>
+            <Reveal>
+              <h2 className={`${display} text-4xl font-bold`}>Questions</h2>
+            </Reveal>
+            <div className="mt-8 space-y-3">
+              {FAQ.map(([q, a]) => (
+                <Reveal key={q}>
+                  <details className="group rounded-2xl border border-white/10 bg-white/[0.03] transition open:border-sky-300/30">
+                    <summary className="flex cursor-pointer list-none items-center justify-between gap-4 p-5 font-semibold hover:text-sky-200">
+                      {q}
+                      <span className="text-xl text-sky-300 transition group-open:rotate-45">+</span>
+                    </summary>
+                    <p className="px-5 pb-5 text-white/60">{a}</p>
+                  </details>
+                </Reveal>
+              ))}
             </div>
           </div>
-        </Reveal>
-      </section>
 
-      <Footer />
+          <Reveal>
+            <div
+              id="join"
+              className="relative overflow-hidden rounded-[2rem] border border-sky-300/20 bg-gradient-to-br from-[#0b2140] via-[#06101f] to-black px-6 py-14 text-center"
+            >
+              <div className="pointer-events-none absolute -top-24 left-1/2 h-64 w-64 -translate-x-1/2 rounded-full bg-sky-400/30 blur-3xl" />
+              <h2 className={`${display} relative text-3xl font-bold sm:text-5xl`}>Be first on board.</h2>
+              <p className="relative mx-auto mt-4 max-w-md text-white/70">
+                Join the waitlist with your Google account in one click.
+              </p>
+              <ul className="relative mx-auto mt-6 flex max-w-md flex-col gap-2 text-left text-sm text-white/80">
+                {["First delivery slots in 2029", "Private test flight invitation", "Free and non-binding"].map((t) => (
+                  <li key={t} className="flex items-center gap-2">
+                    <Icon name="check" className="h-4 w-4 shrink-0 text-sky-300" /> {t}
+                  </li>
+                ))}
+              </ul>
+              <div className="relative mt-8 flex flex-col items-center gap-4">
+                <JoinButton refCode={ref} size="lg" />
+                {waiting !== null && <LiveCount n={waiting} />}
+              </div>
+            </div>
+          </Reveal>
+        </div>
+        <Footer />
+      </section>
     </main>
   );
 }
 
-// ===================== Ielogots: "You're on the list" =====================
+function SectionHead({ eyebrow, title, children }: { eyebrow: string; title: string; children?: React.ReactNode }) {
+  return (
+    <Reveal className="text-center">
+      <p className="text-sm font-semibold uppercase tracking-[0.3em] text-sky-300">{eyebrow}</p>
+      <h2 className={`${display} mt-3 text-4xl font-bold sm:text-5xl`}>{title}</h2>
+      {children && <p className="mx-auto mt-4 max-w-2xl text-lg text-white/60">{children}</p>}
+    </Reveal>
+  );
+}
+
 async function OnTheList({
   user,
   total,
@@ -315,6 +303,7 @@ async function OnTheList({
   total: number | null;
 }) {
   const supabase = await createClient();
+  const hero = pickHero();
   const meta = user.user_metadata;
   const firstName = (meta.full_name ?? meta.name ?? user.email ?? "").split(" ")[0];
   const avatar: string | undefined = meta.avatar_url ?? meta.picture;
@@ -334,10 +323,11 @@ async function OnTheList({
 
   return (
     <main id="top" className="relative min-h-screen overflow-hidden bg-black">
-      <Image src={HERO} alt="" fill priority sizes="100vw" className="hero-drift object-cover opacity-50" />
+      <Image src={hero.src} alt="" fill priority sizes="100vw" className="hero-drift object-cover opacity-50" />
       <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/60 to-black" />
 
       <Nav
+        sections={false}
         cta={
           <form action="/auth/signout" method="post">
             <button className="cursor-pointer rounded-full border border-white/25 bg-white/10 px-5 py-2 text-sm font-semibold backdrop-blur transition hover:bg-white/20">
@@ -423,18 +413,9 @@ async function OnTheList({
   );
 }
 
-function LiveCount({ n }: { n: number }) {
-  return (
-    <span className="flex items-center gap-2 rounded-full bg-black/40 px-4 py-2 text-sm text-white/80 backdrop-blur">
-      <span className="live-dot h-2 w-2 rounded-full bg-emerald-400" />
-      {n.toLocaleString("en-US")} {n === 1 ? "person" : "people"} waiting for take-off
-    </span>
-  );
-}
-
 function Footer() {
   return (
-    <footer className="border-t border-white/10 py-10">
+    <footer className="border-t border-white/10 pb-28 pt-10 md:pb-10">
       <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-4 text-sm text-white/40 sm:flex-row sm:px-6">
         <span className={`${display} tracking-[0.25em] text-white/70`}>
           SKYHOME<span className="text-sky-300"> X</span>

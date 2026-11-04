@@ -13,6 +13,13 @@ create table if not exists public.waitlist (
 -- UNIQUE uz user_id un email = dublikātus aptur pati datubāze,
 -- pat ja kods kļūdās vai kāds sūta pieprasījumus pa tiešo.
 
+-- ---------- Tabulas atļaujas (GRANT) ----------
+-- Jaunos Supabase projektos API lomām tās nedod automātiski.
+-- Bez šī pierakstīts lietotājs saņem "permission denied for table waitlist".
+-- GRANT atļauj darbību vispār; KURAS rindas drīkst, nosaka RLS politikas zemāk.
+-- anon (neielogotiem) nedodam neko: skaitītājs nāk no waitlist_count() funkcijas.
+grant select, insert, delete on public.waitlist to authenticated;
+
 -- ---------- Row Level Security ----------
 alter table public.waitlist enable row level security;
 
