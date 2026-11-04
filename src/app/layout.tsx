@@ -1,19 +1,22 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
-const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
+const display = Space_Grotesk({ variable: "--font-display", subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "SkyHome X — One home. Three worlds.",
-  description: "A flying mobile home that takes you anywhere. Join the waitlist.",
+  title: "SKYHOME X — Your home. Your world. Your freedom.",
+  description:
+    "A flying mobile home that drives, sails and flies. Don't just visit the world's most beautiful places. Live above them. Join the waitlist.",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>{children}</body>
+    <html lang="en" className="scroll-smooth">
+      <body className={`${geistSans.variable} ${display.variable} bg-black text-white antialiased`}>
+        {children}
+      </body>
     </html>
   );
 }
